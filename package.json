@@ -1,0 +1,14 @@
+{
+  "name": "lighttest",
+  "version": "1.0.0",
+  "description": "'",
+  "main": "light.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "i2c-bus": "^4.0.9"
+  }
+}
