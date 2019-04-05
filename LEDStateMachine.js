@@ -67,22 +67,27 @@ class Working extends State {
       this.ctx.setTRiseAndOn(0x33)
       this.ctx.setTFallAndOff(0x33)
       this.ctx.setTSlotAndDelay(0x33)
+      this.ctx.setPattern(0x00)
+      this.ctx.setTimes(0x00)
       // pattern config
       if (times) {
+        console.log(`limit times ${times}`)
         this.ctx.setPattern(parseInt(`10000000`, 2))
-        this.ctx.setTimes(parseInt(`00001000`, 2))
+        this.ctx.setTimes(times)
         // pulling 0x02 
         this.finishTimer = setInterval(() => {
           if (this.ctx.get(0x02) == '0x0') {
-            console.log('finish')
+            console.log(`in finish timer`)
             this.finish = true
-            clearInterval(this.finishTimer)
+            this.clear()
           }
         }, 500)
       }
       // active time
       if (time) {
+        console.log(`limit time ${time}`)
         this.closeTimer = setTimeout(() => {
+          console.log(`in close timer`)
           this.setState(StandBy)
         }, time * 1000)
       }
@@ -92,9 +97,13 @@ class Working extends State {
     }
   }
 
-  exit() {
+  clear() {
     clearTimeout(this.closeTimer)
     clearInterval(this.finishTimer)
+  }
+
+  exit() {
+    this.clear()
     this.ctx.stop()
     this.ctx.setLedMode(0x01)
   }
@@ -225,9 +234,12 @@ function parseHex(number) {
 
 let m = new LEDControl()
 
-// m.state.setState(Working, 'alwaysOn', '#ffffff', 10)
-m.state.setState(Working, 'breath', '#00ff00', 5)
-// m.state.setState(Working, 'breath', '#ff00ff', 10)
+// 常亮
+m.state.setState(Working, 'alwaysOn', '#ff0000', 10)
+// 闪烁 3次
+m.state.setState(Working, 'breath', '#00ff00', 2)
+// 闪烁 5秒
+m.state.setState(Working, 'breath', '#ff00ff', null, 15)
 
 setTimeout(() => {
   // m.state.isFinish()
