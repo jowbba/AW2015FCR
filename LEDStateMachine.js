@@ -45,9 +45,9 @@ class Working extends State {
     super(ctx, ...args)
   }
 
-  enter(type, color, times = 0, time = 0, weight = 0) {
-    this.type = type
+  enter(color, type, time = 0, times = 0, weight = 0) {
     this.color = color
+    this.type = type
     this.time = time
     this.finish = false
     this.closeTimer = null
@@ -209,8 +209,11 @@ class LEDControl {
     this.set(0x3E, v3 || 0x00)
   }
 
-  run() {
-    
+  run(color, type, time, times) {
+    if (!['alwaysOn', 'breath'].includes(type)) throw new Error('illegal type')
+    if (time && typeof time !== 'number') throw new Error('illegal time')
+    if (times && typeof times !== 'number') throw new Error('illegal times')
+    this.state.setState(Working, color, type, time, times)
   }
 
   stop() {
@@ -235,20 +238,10 @@ function parseHex(number) {
 let m = new LEDControl()
 
 // 常亮
-m.state.setState(Working, 'alwaysOn', '#ff0000', 10)
-// 闪烁 3次
-m.state.setState(Working, 'breath', '#00ff00', 2)
+// m.run('#ff0000', 'alwaysOn')
 // 闪烁 5秒
-m.state.setState(Working, 'breath', '#ff00ff', null, 15)
-
-setTimeout(() => {
-  // m.state.isFinish()
-  // m.state.setState(StandBy, 'breath', '#ff00ff', 0)
-}, 1000)
-
-setTimeout(() => {
-  // m.state.setState(Working, 'breath', '#ffff00', 10)
-}, 1000)
-
+m.run('#00ff00', 'breath', 5)
+// 闪烁 3次
+// m.run('#0000ff', 'breath', null, 2)
 
 
