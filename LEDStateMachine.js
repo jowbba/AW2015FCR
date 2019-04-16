@@ -1,6 +1,6 @@
 const i2c = require('i2c-bus')
 const AW2015FCR_ADDR = 0x64
-const BUS_NUMBER = 3
+const BUS_NUMBER = 1
 
 
 class State {
@@ -196,7 +196,7 @@ class LEDControl {
   }
 
   stop() {
-    // this.set(0x09, 0x10)
+    this.state.setState(StandBy)
   }
 }
 
@@ -221,7 +221,7 @@ let m = new LEDControl()
 // 闪烁 5秒
 // m.run('#ffffff', 'breath')
 // 闪烁 3次
-m.run('#0000ff', 'breath', null, 13)
+// m.run('#0000ff', 'breath', null, 13)
 
 
 /* class StandBy extends State {
@@ -318,5 +318,7 @@ class Err extends State {
   }
 }
 */
+
+module.exports = new LEDControl()
 
 
