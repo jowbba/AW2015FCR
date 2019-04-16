@@ -1,7 +1,4 @@
 const i2c = require('i2c-bus')
-const AW2015FCR_ADDR = 0x64
-const BUS_NUMBER = 1
-
 
 class State {
   constructor(ctx, ...args) {
@@ -20,11 +17,11 @@ class State {
 }
 
 class Init extends State {
-  constructor(ctx) {
-    super(ctx) 
+  constructor(ctx, ...args) {
+    super(ctx, ...args) 
   }
 
-  enter() {
+  enter(BUS_NUMBER) {
     this.ctx.i2c1 = i2c.openSync(BUS_NUMBER)
     this.ctx.set(0x00, 0x55) // reboot
     this.ctx.set(0x01, 0x01) // reboot
@@ -98,21 +95,35 @@ class Working extends State {
   }
 }
 
+class Err extends State {
+  constructor(ctx, ...args) {
+    super(ctx, ...args)
+  }
 
+  enter(err) {
+    this.message = err.message
+  }
+}
 
 class LEDControl {
-  constructor() {
-    this.queue = []
+  constructor(BUS_NUMBER, AW2015FCR_ADDR) {
     this.i2c1 = null
     this.state = null
-    this.addr = AW2015FCR_ADDR
     this.busNumber = BUS_NUMBER
-    new Init(this)
+    this.addr = AW2015FCR_ADDR
+  }
+
+  init() {
+    try {
+      new Init(this, this.busNumber)
+    } catch (error) { 
+      this.state.setState(Err, error)
+      throw error
+    }
   }
 
   set(cmd, byte) {
     if (!this.i2c1) throw new Error('Not initialized yet')
-    // console.log(cmd, ' ', byte)
     this.i2c1.writeByteSync(this.addr, cmd, byte)
   }
 
@@ -121,6 +132,8 @@ class LEDControl {
     let result =  this.i2c1.readByteSync(this.addr, cmd)
     return `${!num?'0x':''}${result.toString(num || 16)}`
   }
+
+  getName() { return this.state.constructor.name}
 
   setLedMode (value) {
     // 0x07 pattern mode
@@ -214,14 +227,20 @@ function parseHex(number) {
   return parseInt(number, 16)
 }
 
-let m = new LEDControl()
+// let m = new LEDControl(3, 0x64)
+// try {
+//   m.init()
+// } catch (error) {
+//   console.log('catch error', error)
+// }
+
 
 // 常亮
 // m.run('#ffffff', 'alwaysOn')
 // 闪烁 5秒
 // m.run('#ffffff', 'breath')
 // 闪烁 3次
-// m.run('#0000ff', 'breath', null, 13)
+// m.run('#0000ff', 'breath', null, 3)
 
 
 /* class StandBy extends State {
@@ -311,14 +330,8 @@ class Working extends State {
     this.ctx.get(0x06)
   }
 }
-
-class Err extends State {
-  constructor(ctx, ...args) {
-    super(ctx)
-  }
-}
 */
 
-module.exports = new LEDControl()
+module.exports = LEDControl
 
 
