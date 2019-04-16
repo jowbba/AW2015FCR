@@ -25,10 +25,11 @@ class Init extends State {
   }
 
   enter() {
-    this.ctx.i2c1 = i2c.openSync(3)
+    this.ctx.i2c1 = i2c.openSync(BUS_NUMBER)
     this.ctx.set(0x00, 0x55) // reboot
     this.ctx.set(0x03, 0x00) // max brightness
-    this.ctx.set(0x07, 0x07) // enable all 
+    this.ctx.set(0x07, 0x07
+      ) // enable all 
     this.ctx.set(0x08, 0x08) // require in multi color mode
     this.ctx.setPWMS(0x55, 0x55, 0x55)
   }
@@ -37,6 +38,10 @@ class Init extends State {
 class StandBy extends State {
   constructor(ctx) {
     super(ctx)
+  }
+
+  enter() {
+    this.ctx.set(0x01, 0x00)
   }
 }
 
@@ -93,6 +98,7 @@ class Working extends State {
       }
       
 
+
       this.ctx.set(0x09, 0x01)
     }
   }
@@ -104,8 +110,9 @@ class Working extends State {
 
   exit() {
     this.clear()
-    this.ctx.stop()
     this.ctx.setLedMode(0x01)
+    this.ctx.stop()
+    
   }
 
   isFinish() {
@@ -134,6 +141,7 @@ class LEDControl {
 
   set(cmd, byte) {
     if (!this.i2c1) throw new Error('Not initialized yet')
+    // console.log(cmd, ' ', byte)
     this.i2c1.writeByteSync(this.addr, cmd, byte)
   }
 
@@ -217,7 +225,7 @@ class LEDControl {
   }
 
   stop() {
-    this.set(0x09, 0x10)
+    // this.set(0x09, 0x10)
   }
 }
 
@@ -238,10 +246,8 @@ function parseHex(number) {
 let m = new LEDControl()
 
 // 常亮
-// m.run('#ff0000', 'alwaysOn')
+// m.run('#ffffff', 'alwaysOn')
 // 闪烁 5秒
-m.run('#00ff00', 'breath', 5)
+m.run('#00ff00', 'breath')
 // 闪烁 3次
 // m.run('#0000ff', 'breath', null, 2)
-
-
