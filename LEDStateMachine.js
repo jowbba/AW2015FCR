@@ -51,24 +51,19 @@ class StandBy extends State{
 class Working extends State {
   constructor(ctx, ...args) {
     super(ctx, ...args)
-    this.light = false
-    this.color = null
-    this.type = null
-    this.time = 0
-    this.times = 0
-    this.lightTimes = 0
-    this.closeTimer = null
-    this.nextTimer = null
 
   }
 
   enter(color, type, time = 0, times = 0) {
-    console.log(time)
     let [r, g, b] = convertColor(color)
     this.color = color
     this.type = type
     this.time = time
     this.times = times
+    this.lightTimes = 0
+    this.closeTimer = null
+    this.nextTimer = null
+    this.light = false
     this.ctx.setLedMode(0x06)
     this.ctx.setLed1(r, g, b)
     this.ctx.setPWMS()
@@ -92,7 +87,11 @@ class Working extends State {
     this.nextTimer = setTimeout(() => {
       // console.log('in next timer', this.lightTimes)
       this.ctx.setPWMS(this.light? null: 0x55)
-      if (!this.light) this.lightTimes ++
+      if (!this.light) {
+        if (this.times > 0 && this.lightTimes >= this.times ) return this.setState(StandBy)
+      } else {
+        this.lightTimes ++
+      }
       this.light = !this.light
       this.createNextTimer()
     }, 500)
@@ -220,9 +219,9 @@ let m = new LEDControl()
 // 常亮
 // m.run('#ffffff', 'alwaysOn')
 // 闪烁 5秒
-m.run('#ffffff', 'breath')
+// m.run('#ffffff', 'breath')
 // 闪烁 3次
-// m.run('#0000ff', 'breath', null, 2)
+m.run('#0000ff', 'breath', null, 13)
 
 
 /* class StandBy extends State {
