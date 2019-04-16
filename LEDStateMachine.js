@@ -231,18 +231,18 @@ function parseHex(number) {
   return parseInt(number, 16)
 }
 
-let m = new LEDControl(3, 0x64)
-try {
-  m.init()
-} catch (error) {
-  console.log('catch error', error)
-}
+// let m = new LEDControl(3, 0x64)
+// try {
+//   m.init()
+// } catch (error) {
+//   console.log('catch error', error)
+// }
 
 
 // 常亮
 // m.run('#ffffff', 'alwaysOn')
 // 闪烁 5秒
-m.run('#ffffff', 'breath', 5000)
+// m.run('#ffffff', 'breath', 5000)
 // 闪烁 3次
 // m.run('#0000ff', 'breath', null, 3)
 
