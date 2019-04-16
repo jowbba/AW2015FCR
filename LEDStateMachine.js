@@ -39,8 +39,11 @@ class StandBy extends State{
   }
 
   enter() {
+    let [r, g, b] = convertColor(this.ctx.defaultColor || '#00ff00')
+    
+
     this.ctx.setLedMode(0x06)
-    this.ctx.setLed1(0x00, 0xff, 0x00)
+    this.ctx.setLed1(r, g, b)
     this.ctx.setPWMS(0X55)
   }
 }
@@ -67,7 +70,7 @@ class Working extends State {
     this.ctx.setTRiseAndOn(0x33)
     this.ctx.setTFallAndOff(0x33)
 
-    if (type !== 'alwaysOn') this.createNextTimer()
+    this.createNextTimer()
     if (time) this.closeTimer = setTimeout(() => {
       console.log('in close timer')
       this.setState(StandBy)
@@ -82,10 +85,10 @@ class Working extends State {
 
   createNextTimer () {
     this.nextTimer = setTimeout(() => {
-      // console.log('in next timer', this.lightTimes)
       this.ctx.setPWMS(this.light? null: 0x55)
       if (!this.light) {
         if (this.times > 0 && this.lightTimes >= this.times ) return this.setState(StandBy)
+        if (this.type == 'alwaysOn') return
       } else {
         this.lightTimes ++
       }
@@ -106,11 +109,12 @@ class Err extends State {
 }
 
 class LEDControl {
-  constructor(BUS_NUMBER, AW2015FCR_ADDR) {
+  constructor(BUS_NUMBER, AW2015FCR_ADDR, defaultColor) {
     this.i2c1 = null
     this.state = null
     this.busNumber = BUS_NUMBER
     this.addr = AW2015FCR_ADDR
+    this.defaultColor = defaultColor
   }
 
   init() {
@@ -227,18 +231,18 @@ function parseHex(number) {
   return parseInt(number, 16)
 }
 
-// let m = new LEDControl(3, 0x64)
-// try {
-//   m.init()
-// } catch (error) {
-//   console.log('catch error', error)
-// }
+let m = new LEDControl(3, 0x64)
+try {
+  m.init()
+} catch (error) {
+  console.log('catch error', error)
+}
 
 
 // 常亮
 // m.run('#ffffff', 'alwaysOn')
 // 闪烁 5秒
-// m.run('#ffffff', 'breath')
+m.run('#ffffff', 'breath', 5000)
 // 闪烁 3次
 // m.run('#0000ff', 'breath', null, 3)
 
